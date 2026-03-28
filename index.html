@@ -3,28 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Estúdio IA — Legendas & Prompts</title>
+<title>Dark Studio IA — Legendas & Prompts</title>
 
-<!-- Configurações PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#050505">
 <link rel="apple-touch-icon" href="icon-192.png">
 
-<!-- Fontes: Syne (Títulos), Inter (UI/SaaS), JetBrains Mono (Código/Prompts) -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
     /* Paleta Black Piano & Vermelho Sangue */
-    --bg-base:      #050505; /* Black Piano muito escuro */
-    --glass-bg:     rgba(15, 15, 15, 0.9); /* Fundo dos cards brilhante */
+    --bg-base:      #050505; 
+    --glass-bg:     rgba(15, 15, 15, 0.9); 
     --glass-border: rgba(255, 255, 255, 0.1);
     --glass-highlight: rgba(255, 255, 255, 0.05);
     
-    --accent:       #CC0000; /* Vermelho Sangue */
+    --accent:       #CC0000; 
     --accent-glow:  rgba(204, 0, 0, 0.5);
-    --accent-hover: #FF1A1A; /* Vermelho mais vivo para hover */
+    --accent-hover: #FF1A1A; 
     
-    --text-main:    #F0F4F8; /* Branco gelo */
+    --text-main:    #F0F4F8; 
     --text-muted:   #888888; 
     
     --success:      #10B981;
@@ -122,7 +120,7 @@
   .grid { display: grid; grid-template-columns: 1fr 380px; gap: 24px; margin-bottom: 32px; }
   @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
 
-  /* Animação da Borda Branco Gelo */
+  /* Animação da Borda */
   @keyframes spin-border {
     0% { transform: translate(-50%, -50%) rotate(0deg); }
     100% { transform: translate(-50%, -50%) rotate(360deg); }
@@ -185,7 +183,6 @@
   select { font-family: var(--font-sans); cursor: pointer; appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2394A3B8%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 14px top 50%; background-size: 16px; padding-right: 40px; }
   select option { background: #0A0A0A; color: var(--text-main); }
   textarea:focus, select:focus, input:focus { border-color: var(--accent); background: rgba(20, 20, 20, 0.9); box-shadow: 0 0 0 2px rgba(204, 0, 0, 0.3), inset 0 2px 4px rgba(0,0,0,0.5); }
-
   .custom-input-box { margin-top: 8px; animation: fadeIn 0.3s ease; }
 
   /* Sliders */
@@ -213,6 +210,8 @@
     border-radius: 16px; color: var(--text-muted); font-family: var(--font-sans); font-size: 14px; font-weight: 600; cursor: pointer; transition: all .3s; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   }
   .btn-clear:hover { background: rgba(255, 255, 255, 0.15); color: var(--text-main); }
+  .btn-reset-api { border-color: rgba(239, 68, 68, 0.4); color: #FCA5A5; }
+  .btn-reset-api:hover { background: rgba(239, 68, 68, 0.15); color: #fff; }
 
   /* Info & Error Alerts */
   .info-alert, .error-box { padding: 16px 20px; font-size: 13px; border-radius: 12px; margin-bottom: 24px; line-height: 1.6; display: flex; gap: 12px; align-items: flex-start; backdrop-filter: blur(10px); }
@@ -234,7 +233,7 @@
     animation: spin-border 15s linear infinite; z-index: -2;
   }
   .results-header::after {
-    content: ""; position: absolute; inset: 1px; background: var(--glass-bg); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border-radius: 19px; z-index: -1;
+    content: ""; position: absolute; inset: 1px; background: var(--glass-bg); backdrop-filter: blur(30px); border-radius: 19px; z-index: -1;
   }
   .results-header > * { position: relative; z-index: 2; }
 
@@ -261,7 +260,7 @@
     animation: spin-border 12s linear infinite; z-index: -2;
   }
   .prompt-card::after {
-    content: ""; position: absolute; inset: 1px; background: var(--glass-bg); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border-radius: 19px; z-index: -1;
+    content: ""; position: absolute; inset: 1px; background: var(--glass-bg); backdrop-filter: blur(30px); border-radius: 19px; z-index: -1;
   }
   .prompt-card > * { position: relative; z-index: 2; }
 
@@ -282,7 +281,6 @@
   .btn-magic { background: linear-gradient(135deg, #FF1A1A, #990000); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 12px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s; box-shadow: 0 4px 15px rgba(204, 0, 0, 0.4); }
   .btn-magic:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(204, 0, 0, 0.6); filter: brightness(1.2); }
 
-  /* Scrollbar */
   ::-webkit-scrollbar { width: 8px; }
   ::-webkit-scrollbar-track { background: var(--bg-base); }
   ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
@@ -305,7 +303,6 @@
 
 <div class="container">
   
-  <!-- Selo de Fornecedor / Patrocínio do Canal -->
   <a href="https://www.youtube.com/@adrianosantosdasilva" target="_blank" class="yt-badge">
     <svg viewBox="0 0 24 24" width="28" height="28" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
     <span>
@@ -315,7 +312,6 @@
     </span>
   </a>
 
-  <!-- Switcher das Aplicações -->
   <div class="app-switcher">
     <button class="app-tab active" onclick="switchApp('srt')" id="tabAppSrt">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
@@ -333,20 +329,13 @@
     <p class="subtitle" id="appDesc">Converta roteiros longos num ficheiro .SRT sincronizado perfeitamente para retenção. Ajuste o ritmo e tamanho dos blocos de texto.</p>
   </header>
 
-  <!-- ========================================== -->
-  <!-- APP 1: GERADOR DE SRT                      -->
-  <!-- ========================================== -->
   <div id="viewSrt" class="view-section active">
     <div class="grid">
-      <!-- Lado Esquerdo -->
       <div class="card">
-        <div class="card-header">
-          <div class="card-title">Texto do Roteiro / Guião</div>
-        </div>
-        <textarea id="inputRoteiroSrt" placeholder="Cole aqui o guião do seu vídeo. O sistema irá calcular os tempos com base na velocidade de leitura escolhida e irá gerar um ficheiro .SRT perfeitamente cortado..."></textarea>
+        <div class="card-header"><div class="card-title">Texto do Roteiro / Guião</div></div>
+        <textarea id="inputRoteiroSrt" placeholder="Cole aqui o guião do seu vídeo. O sistema irá calcular os tempos com base na velocidade de leitura escolhida..."></textarea>
       </div>
 
-      <!-- Lado Direito -->
       <div class="card">
         <div class="card-header"><div class="card-title">Configurações de Tempo</div></div>
         
@@ -382,16 +371,13 @@
       <button class="btn-clear" onclick="limparSrt()">Limpar</button>
     </div>
 
-    <!-- Resultados SRT -->
     <div id="resultsSrt">
       <div class="results-header" style="margin-bottom: 16px;">
         <div class="card-title" style="margin: 0;">Legendas Geradas (Pré-visualização)</div>
         <div class="actions-group">
           <button class="btn-action btn-save-txt" onclick="copiarSrt()">📋 Copiar</button>
           <button class="btn-action btn-copy-all" onclick="baixarSrt()">💾 Guardar .SRT</button>
-          <button class="btn-magic" onclick="enviarParaPrompts()">
-              🎨 Enviar SRT para Gerador de Prompts
-          </button>
+          <button class="btn-magic" onclick="enviarParaPrompts()">🎨 Enviar SRT para Gerador de Prompts</button>
         </div>
       </div>
       <textarea id="outputSrtText" class="srt-output" readonly></textarea>
@@ -399,12 +385,8 @@
   </div>
 
 
-  <!-- ========================================== -->
-  <!-- APP 2: GERADOR DE PROMPTS                  -->
-  <!-- ========================================== -->
   <div id="viewPrompts" class="view-section">
     <div class="grid">
-      <!-- Lado Esquerdo -->
       <div class="card">
         <div class="card-header">
           <div class="card-title">Origem do Texto</div>
@@ -428,7 +410,6 @@
         </div>
       </div>
 
-      <!-- Lado Direito -->
       <div class="card">
         <div class="card-header"><div class="card-title">Configurações Estéticas</div></div>
         
@@ -464,7 +445,7 @@
             <input type="range" id="maxWordsPrompts" min="5" max="60" value="15" oninput="document.getElementById('maxWordsPromptsVal').textContent = this.value">
             <span class="slider-val" id="maxWordsPromptsVal">15</span>
           </div>
-          <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">Controla o limite de palavras por cena gerada. Valores maiores = maior contexto na mesma imagem.</p>
+          <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">Controla o limite de palavras por cena gerada.</p>
         </div>
       </div>
     </div>
@@ -479,9 +460,9 @@
     <div class="main-actions">
       <button class="btn-generate btn-generate-wrapper" id="btnGerarPrompts" onclick="gerarPrompts()">Gerar Prompts Visuais</button>
       <button class="btn-clear" onclick="limparPrompts()">Reset</button>
+      <button class="btn-clear btn-reset-api" onclick="resetApiKey()">Trocar Chave API</button>
     </div>
 
-    <!-- Resultados Prompts -->
     <div id="resultsPrompts" class="results-section">
       <div class="results-header">
         <div class="stats" id="statsBarPrompts"></div>
@@ -506,19 +487,33 @@
 
 </div>
 
-<!-- Elemento oculto para garantir a cópia -->
 <textarea id="clipboard-helper"></textarea>
 
-<!-- Container para Notificações Customizadas -->
 <div id="toast-container"></div>
 
 <script>
   // ==========================================
-  // CONFIG GERAIS E NAVEGAÇÃO
+  // CONFIG GERAIS E NAVEGAÇÃO / SISTEMA DE COFRE API
   // ==========================================
-  const apiKey = ""; 
+  
+  let apiKey = localStorage.getItem('gemini_api_key');
+  
+  // Se a chave não estiver guardada no navegador, abre uma janela a pedir
+  if (!apiKey || apiKey === "") {
+      apiKey = prompt("🔒 Bem-vindo ao Dark Studio IA!\n\nCole aqui a sua Chave de API do Google AI Studio para ativar o gerador de prompts.\n(Só precisa de fazer isto uma vez. A chave fica guardada em segurança no seu navegador.)");
+      if (apiKey) {
+          localStorage.setItem('gemini_api_key', apiKey.trim());
+      }
+  }
 
-  // Função helper para Notificações visuais elegantes
+  // Função para limpar a chave se der erro ou quiser trocar
+  function resetApiKey() {
+      if(confirm("Deseja apagar a sua Chave de API atual e inserir uma nova?")) {
+          localStorage.removeItem('gemini_api_key');
+          location.reload(); 
+      }
+  }
+
   function showToast(message, type = 'info') {
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
@@ -591,7 +586,6 @@
 
     const maxWords = parseInt(document.getElementById('maxWordsSrt').value);
     
-    // Divisão inteligente para leitura natural
     const words = rawText.split(/\s+/).filter(Boolean);
     let srtContent = "";
     let currentTime = 0;
@@ -633,10 +627,7 @@
   function copiarSrt() {
     const ta = document.getElementById('outputSrtText');
     ta.select();
-    try { 
-      document.execCommand('copy'); 
-      showToast('SRT Copiado para a área de transferência!', 'success'); 
-    } 
+    try { document.execCommand('copy'); showToast('SRT Copiado para a área de transferência!', 'success'); } 
     catch(err) { showToast('Erro ao copiar.', 'error'); }
     window.getSelection().removeAllRanges();
   }
@@ -658,7 +649,6 @@
     document.getElementById('resultsSrt').style.display = 'none';
   }
 
-  // Ponte mágica SRT -> Prompts
   function enviarParaPrompts() {
     const srtData = document.getElementById('outputSrtText').value;
     if(!srtData) return;
@@ -672,7 +662,6 @@
     btn.innerHTML = '✅ Transferido com sucesso!';
     setTimeout(() => { btn.innerHTML = oldHtml; }, 2000);
   }
-
 
   // ==========================================
   // APP 2: LÓGICA DO GERADOR DE PROMPTS
@@ -737,14 +726,12 @@
     const select = document.getElementById('selEstilo');
     select.innerHTML = '';
     
-    // Adiciona sempre a opção custom no topo do estilo
     const optCustom = document.createElement('option');
     optCustom.value = 'custom';
     optCustom.textContent = '✍️ Digitar Estilo personalizado...';
     select.appendChild(optCustom);
 
     if (nicho === 'custom') {
-      // Se escolheu Nicho Personalizado, o Estilo também tem de ser personalizado
       select.value = 'custom';
     } else {
       const estilos = DATABASE[nicho];
@@ -755,14 +742,12 @@
           opt.textContent = `${est.nome}`;
           select.appendChild(opt);
         });
-        // Por padrão, seleciona a primeira opção da categoria após o custom
         if (estilos.length > 0) {
           select.value = estilos[0].sufixo;
         }
       }
     }
     
-    // Atualiza a visibilidade das caixas
     toggleCustomInput('selNicho', 'divCustomNicho');
     toggleCustomInput('selEstilo', 'divCustomEstilo');
   }
@@ -862,6 +847,10 @@
   }
 
   async function interpretarComIA(segmentos, customTheme) {
+    if (!apiKey || apiKey === "") {
+        throw new Error("Chave de API em falta. Clique em 'Trocar Chave API' e insira a sua chave.");
+    }
+  
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
     
     let themeOverride = "";
@@ -1059,17 +1048,11 @@ CRITICAL RULES:
   function guardarTXTSomentePrompts() {
     const cards = document.querySelectorAll('.prompt-card');
     if (cards.length === 0) { showToast("Não há prompts gerados para exportar.", "error"); return; }
-    
     let allText = ""; 
-    
     cards.forEach((card, i) => { 
       const prompt = card.querySelector('.pc-textarea').value;
-      
-      // Substituída a tag [IMAGEM 01] por uma numeração universal e limpa "01 - "
-      // Isto evita que a extensão apague caracteres especiais e ajuda a forçar a ordem numérica no nome.
       allText += `${String(i + 1).padStart(2, '0')} - ${prompt}\n\n`;
     });
-    
     const blob = new Blob([allText], { type: 'text/plain;charset=utf-8' });
     const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'somente_prompts_automacao.txt';
     document.body.appendChild(link); link.click(); document.body.removeChild(link);
@@ -1087,15 +1070,12 @@ CRITICAL RULES:
     document.getElementById('btnGerarPrompts').disabled = false;
   }
 
-  // Registo do Service Worker para permitir instalação do PWA
   if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.protocol === 'http:')) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js')
         .then(reg => console.log('Service Worker registado com sucesso.', reg.scope))
         .catch(err => console.error('Erro ao registar o Service Worker:', err));
     });
-  } else {
-    console.log('Service Worker não registado: O ambiente atual não suporta PWA (protocolo ' + window.location.protocol + '). Funcionará perfeitamente quando alojado no GitHub Pages.');
   }
 </script>
 
