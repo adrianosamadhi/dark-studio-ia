@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estúdio IA — Legendas & Prompts</title>
+
+<!-- Configurações PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#050505">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<!-- Fontes: Syne (Títulos), Inter (UI/SaaS), JetBrains Mono (Código/Prompts) -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Paleta Black Piano & Vermelho Sangue */
+    --bg-base:      #050505; /* Black Piano muito escuro */
+    --glass-bg:     rgba(15, 15, 15, 0.9); /* Fundo dos cards brilhante */
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-highlight: rgba(255, 255, 255, 0.05);
+    
+    --accent:       #CC0000; /* Vermelho Sangue */
+    --accent-glow:  rgba(204, 0, 0, 0.5);
+    --accent-hover: #FF1A1A; /* Vermelho mais vivo para hover */
+    
+    --text-main:    #F0F4F8; /* Branco gelo */
+    --text-muted:   #888888; 
+    
+    --success:      #10B981;
+    --error:        #EF4444;
+    --warning:      #F59E0B;
+
+    --font-sans:    'Inter', sans-serif;
+    --font-display: 'Syne', sans-serif;
+    --font-mono:    'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-main);
+    font-family: var(--font-sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  /* Fundo de Grelha + Orbes de Luz Vermelhos */
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px; z-index: 0; pointer-events: none;
+  }
+  
+  .glow-orb-1, .glow-orb-2 { position: fixed; border-radius: 50%; filter: blur(120px); z-index: 0; pointer-events: none; }
+  .glow-orb-1 { top: -20%; left: -10%; width: 60vw; height: 60vw; background: radial-gradient(circle, rgba(204, 0, 0, 0.15) 0%, transparent 60%); }
+  .glow-orb-2 { bottom: -20%; right: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, rgba(102, 0, 0, 0.12) 0%, transparent 60%); }
+
+  .container { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* App Switcher (Navegação Principal) */
+  .app-switcher {
+    display: flex; background: rgba(5, 5, 5, 0.8); border: 1px solid var(--glass-border);
+    border-radius: 16px; padding: 6px; margin: 0 auto 40px; max-width: 500px;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+  }
+  .app-tab {
+    flex: 1; padding: 12px; border-radius: 12px; border: none; background: transparent;
+    color: var(--text-muted); font-family: var(--font-sans); font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all .3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .app-tab:hover:not(.active) { color: var(--text-main); }
+  .app-tab.active { 
+    background: linear-gradient(180deg, rgba(204, 0, 0, 0.3) 0%, rgba(204, 0, 0, 0.05) 100%);
+    color: var(--text-main); border: 1px solid rgba(204, 0, 0, 0.5); border-top: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+  }
+
+  /* Header e Selo YouTube */
+  header { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 40px; }
+  
+  .yt-badge {
+    position: absolute; top: 24px; right: 24px; z-index: 100;
+    display: inline-flex; align-items: center; gap: 12px; padding: 10px 18px;
+    background: linear-gradient(135deg, rgba(20,20,20,0.9), rgba(5,5,5,0.9)); 
+    border: 1px solid rgba(204, 0, 0, 0.3); border-radius: 12px; 
+    text-decoration: none; transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); backdrop-filter: blur(10px);
+  }
+  .yt-badge:hover {
+    background: linear-gradient(135deg, rgba(204, 0, 0, 0.2), rgba(204, 0, 0, 0.05)); 
+    border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(204, 0, 0, 0.4);
+  }
+  .yt-badge span { display: flex; flex-direction: column; align-items: flex-start; }
+  .yt-badge-title { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; line-height: 1; margin-bottom: 3px; }
+  .yt-badge-channel { font-weight: 700; color: #fff; font-size: 14px; line-height: 1; }
+  .yt-badge-subscribe { font-size: 9px; background: var(--accent); color: white; padding: 2px 6px; border-radius: 4px; font-weight: 700; text-transform: uppercase; margin-top: 4px; display: inline-block; letter-spacing: 0.5px; }
+  
+  @media (max-width: 900px) {
+    .yt-badge { position: relative; top: 0; right: 0; margin: 0 auto 32px; justify-content: center; width: max-content; }
+  }
+
+  .saas-badge {
+    display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px;
+    background: rgba(204, 0, 0, 0.15); border: 1px solid rgba(204, 0, 0, 0.3);
+    border-radius: 20px; font-size: 12px; font-weight: 600; color: var(--text-main);
+    margin-bottom: 16px; backdrop-filter: blur(10px);
+  }
+  .saas-badge span { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent-hover); }
+  h1 { font-family: var(--font-display); font-size: 36px; font-weight: 800; letter-spacing: -1px; line-height: 1.1; color: #FFFFFF; }
+  .subtitle { font-size: 15px; color: var(--text-muted); margin-top: 12px; font-weight: 400; max-width: 550px; }
+
+  /* Views */
+  .view-section { display: none; animation: fadeIn .4s ease; }
+  .view-section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Grid Layout */
+  .grid { display: grid; grid-template-columns: 1fr 380px; gap: 24px; margin-bottom: 32px; }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+  /* Animação da Borda Branco Gelo */
+  @keyframes spin-border {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+  }
+
+  .card {
+    position: relative;
+    border-radius: 24px; padding: 32px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9);
+    z-index: 1;
+    overflow: hidden;
+  }
+  
+  .card::before {
+    content: "";
+    position: absolute;
+    width: 250%; height: 250%;
+    top: 50%; left: 50%;
+    background: conic-gradient(from 0deg, transparent 75%, rgba(240, 248, 255, 0.8) 90%, transparent 100%);
+    animation: spin-border 12s linear infinite;
+    z-index: -2;
+  }
+
+  .card::after {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border-radius: 23px;
+    z-index: -1;
+  }
+
+  .card > * { position: relative; z-index: 2; }
+
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  .card-title { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 12px; }
+  .card-title::before { content: ''; width: 6px; height: 18px; border-radius: 4px; background: linear-gradient(180deg, var(--accent-hover), var(--accent)); display: block; box-shadow: 0 0 12px var(--accent-glow); }
+
+  /* Sub Tabs */
+  .tabs { display: flex; background: rgba(5, 5, 5, 0.8); border-radius: 12px; padding: 4px; border: 1px solid var(--glass-border); box-shadow: inset 0 2px 8px rgba(0,0,0,0.5); }
+  .tab { flex: 1; padding: 10px; border-radius: 8px; border: none; background: transparent; color: var(--text-muted); font-family: var(--font-sans); font-size: 13px; font-weight: 600; cursor: pointer; transition: all .3s; }
+  .tab:hover:not(.active) { color: var(--text-main); }
+  .tab.active { background: rgba(204, 0, 0, 0.15); color: var(--accent-hover); border: 1px solid rgba(204, 0, 0, 0.4); box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255, 255, 255, 0.1); }
+
+  /* Upload Zone */
+  .upload-zone { border: 2px dashed rgba(204, 0, 0, 0.4); border-radius: 16px; padding: 60px 24px; text-align: center; cursor: pointer; transition: all .3s; display: none; background: rgba(10, 10, 10, 0.6); }
+  .upload-zone.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .upload-zone:hover { border-color: var(--accent); background: rgba(204, 0, 0, 0.08); }
+  .upload-icon { width: 48px; height: 48px; border-radius: 12px; background: rgba(204, 0, 0, 0.15); display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 16px; border: 1px solid rgba(204, 0, 0, 0.3); color: var(--accent-hover); }
+  .upload-label { font-size: 14px; color: var(--text-muted); font-weight: 500;}
+  .upload-label strong { color: var(--accent-hover); }
+
+  /* Inputs & Formulários */
+  .field { margin-bottom: 24px; transition: opacity 0.3s; }
+  .field label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
+  textarea, select, input[type="text"], input[type="number"] { width: 100%; background: rgba(15, 15, 15, 0.8); border: 1px solid var(--glass-border); border-radius: 12px; color: var(--text-main); font-family: var(--font-mono); font-size: 13px; padding: 14px 16px; outline: none; transition: all .2s ease; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); }
+  textarea { font-family: var(--font-sans); min-height: 280px; resize: vertical; line-height: 1.6; }
+  select { font-family: var(--font-sans); cursor: pointer; appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2394A3B8%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 14px top 50%; background-size: 16px; padding-right: 40px; }
+  select option { background: #0A0A0A; color: var(--text-main); }
+  textarea:focus, select:focus, input:focus { border-color: var(--accent); background: rgba(20, 20, 20, 0.9); box-shadow: 0 0 0 2px rgba(204, 0, 0, 0.3), inset 0 2px 4px rgba(0,0,0,0.5); }
+
+  .custom-input-box { margin-top: 8px; animation: fadeIn 0.3s ease; }
+
+  /* Sliders */
+  .slider-wrap { display: flex; align-items: center; gap: 16px; }
+  input[type="range"] { flex: 1; -webkit-appearance: none; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; border: none; padding: 0; }
+  input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--text-main); cursor: pointer; border: 4px solid var(--accent); box-shadow: 0 2px 6px rgba(0,0,0,0.5); transition: transform 0.1s; }
+  input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
+  .slider-val { background: rgba(204, 0, 0, 0.15); color: var(--accent-hover); font-family: var(--font-mono); font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(204, 0, 0, 0.3); min-width: 60px; text-align: center; }
+
+  /* Botões Principais */
+  .btn-generate {
+    width: 100%; padding: 18px 24px; background: linear-gradient(180deg, #D90429 0%, #990000 100%);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.2); border-top: 1px solid rgba(255, 255, 255, 0.4); border-bottom: 1px solid rgba(0, 0, 0, 0.6);
+    border-radius: 16px; color: white; font-family: var(--font-sans); font-size: 15px; font-weight: 600; letter-spacing: 0.5px; cursor: pointer; transition: all .3s cubic-bezier(0.4, 0, 0.2, 1); 
+    box-shadow: 0 8px 24px rgba(153, 0, 0, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.3); display: flex; justify-content: center; align-items: center; gap: 10px;
+  }
+  .btn-generate:hover:not(:disabled) { transform: translateY(-2px); background: linear-gradient(180deg, #FF1A1A 0%, #CC0000 100%); border-top: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 12px 32px rgba(204, 0, 0, 0.6), inset 0 2px 6px rgba(255, 255, 255, 0.4); }
+  .btn-generate:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(50%); }
+
+  .main-actions { display: flex; gap: 16px; margin-top: 16px; }
+  .btn-generate-wrapper { flex: 1; }
+  .btn-clear {
+    padding: 0 24px; background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px; color: var(--text-muted); font-family: var(--font-sans); font-size: 14px; font-weight: 600; cursor: pointer; transition: all .3s; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+  .btn-clear:hover { background: rgba(255, 255, 255, 0.15); color: var(--text-main); }
+
+  /* Info & Error Alerts */
+  .info-alert, .error-box { padding: 16px 20px; font-size: 13px; border-radius: 12px; margin-bottom: 24px; line-height: 1.6; display: flex; gap: 12px; align-items: flex-start; backdrop-filter: blur(10px); }
+  .info-alert { background: rgba(204, 0, 0, 0.1); border: 1px solid rgba(204, 0, 0, 0.25); color: var(--text-muted); }
+  .info-alert strong { color: var(--text-main); }
+  .info-alert div:first-child { font-size: 18px; }
+  .error-box { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #FCA5A5; font-weight: 500; }
+
+  /* Results Section (Prompts) */
+  .results-section { display: none; margin-top: 64px; animation: fadeIn .5s ease; }
+  
+  .results-header { 
+    position: relative; display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; padding: 20px 24px; 
+    border-radius: 20px; z-index: 1; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.8);
+  }
+  .results-header::before {
+    content: ""; position: absolute; width: 300%; height: 300%; top: 50%; left: 50%;
+    background: conic-gradient(from 0deg, transparent 75%, rgba(240, 248, 255, 0.8) 90%, transparent 100%);
+    animation: spin-border 15s linear infinite; z-index: -2;
+  }
+  .results-header::after {
+    content: ""; position: absolute; inset: 1px; background: var(--glass-bg); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border-radius: 19px; z-index: -1;
+  }
+  .results-header > * { position: relative; z-index: 2; }
+
+  .stats { display: flex; gap: 24px; }
+  .stat { display: flex; flex-direction: column; gap: 4px; }
+  .stat span { font-size: 12px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;}
+  .stat strong { color: var(--text-main); font-size: 20px; font-family: var(--font-display); font-weight: 700;}
+  .actions-group { display: flex; gap: 12px; }
+  .btn-action { padding: 10px 20px; border-radius: 10px; font-family: var(--font-sans); font-size: 13px; font-weight: 600; cursor: pointer; transition: all .3s; display: flex; align-items: center; gap: 8px; border: 1px solid rgba(255, 255, 255, 0.15); }
+  .btn-copy-all { background: rgba(204, 0, 0, 0.2); border-color: rgba(204, 0, 0, 0.4); color: var(--text-main); }
+  .btn-copy-all:hover { background: var(--accent); color: white; }
+  .btn-save-txt { background: rgba(255, 255, 255, 0.08); color: var(--text-main); }
+  .btn-save-txt:hover { background: rgba(255, 255, 255, 0.15); }
+
+  /* Prompt Cards */
+  .prompt-list { display: flex; flex-direction: column; gap: 24px; }
+  
+  .prompt-card { 
+    position: relative; padding: 24px; border-radius: 20px; z-index: 1; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.8);
+  }
+  .prompt-card::before {
+    content: ""; position: absolute; width: 250%; height: 250%; top: 50%; left: 50%;
+    background: conic-gradient(from 0deg, transparent 75%, rgba(240, 248, 255, 0.6) 90%, transparent 100%);
+    animation: spin-border 12s linear infinite; z-index: -2;
+  }
+  .prompt-card::after {
+    content: ""; position: absolute; inset: 1px; background: var(--glass-bg); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border-radius: 19px; z-index: -1;
+  }
+  .prompt-card > * { position: relative; z-index: 2; }
+
+  .pc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .pc-id { font-size: 13px; font-weight: 700; color: var(--accent-hover); display: flex; align-items: center; gap: 8px;}
+  .pc-id::before { content: ''; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent); }
+  .pc-badge { font-size: 11px; font-weight: 500; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: var(--text-main); padding: 4px 10px; border-radius: 12px; }
+  .pc-original { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; padding: 12px 16px; background: rgba(0,0,0,0.4); border-radius: 10px; border-left: 3px solid rgba(204,0,0,0.5); }
+  .pc-textarea { width: 100%; background: rgba(0,0,0,0.6); border: 1px solid var(--glass-border); border-radius: 12px; color: var(--text-main); font-family: var(--font-mono); font-size: 13px; padding: 16px; min-height: 100px; resize: vertical; outline: none; margin-bottom: 16px; box-shadow: inset 0 2px 6px rgba(0,0,0,0.5); }
+  .pc-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(204, 0, 0, 0.3); }
+  .pc-footer { display: flex; justify-content: flex-end; }
+  .btn-copy-single { padding: 8px 16px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; color: var(--text-main); font-family: var(--font-sans); font-size: 12px; font-weight: 600; cursor: pointer; transition: all .2s; }
+  .btn-copy-single:hover { background: rgba(204, 0, 0, 0.2); border-color: rgba(204, 0, 0, 0.5); color: white; }
+
+  /* Módulo SRT Resultados Específicos */
+  #resultsSrt { display: none; margin-top: 40px; animation: fadeIn .5s ease; }
+  .srt-output { width: 100%; height: 400px; font-family: var(--font-mono); font-size: 13px; background: rgba(0,0,0,0.7); padding: 20px; border: 1px solid var(--glass-border); border-radius: 16px; color: var(--text-main); outline: none; resize: vertical; margin-bottom: 24px; line-height: 1.6; box-shadow: inset 0 4px 10px rgba(0,0,0,0.5);}
+  .btn-magic { background: linear-gradient(135deg, #FF1A1A, #990000); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 12px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s; box-shadow: 0 4px 15px rgba(204, 0, 0, 0.4); }
+  .btn-magic:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(204, 0, 0, 0.6); filter: brightness(1.2); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg-base); }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(204,0,0,0.6); }
+  #clipboard-helper { position: fixed; top: -9999px; left: -9999px; opacity: 0; }
+
+  /* Custom Toast Notifications */
+  #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+  .toast { background: var(--glass-bg); border: 1px solid var(--accent); color: var(--text-main); padding: 16px 24px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.8); font-family: var(--font-sans); font-size: 14px; font-weight: 500; animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s forwards; display: flex; align-items: center; gap: 10px; }
+  .toast.error { border-color: var(--error); color: #FCA5A5; }
+  .toast.success { border-color: var(--success); color: #A7F3D0; }
+  @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+</style>
+</head>
+<body>
+
+<div class="glow-orb-1"></div>
+<div class="glow-orb-2"></div>
+
+<div class="container">
+  
+  <!-- Selo de Fornecedor / Patrocínio do Canal -->
+  <a href="https://www.youtube.com/@adrianosantosdasilva" target="_blank" class="yt-badge">
+    <svg viewBox="0 0 24 24" width="28" height="28" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+    <span>
+      <span class="yt-badge-title">Ferramenta Oferecida por</span>
+      <span class="yt-badge-channel">@adrianosantosdasilva</span>
+      <span class="yt-badge-subscribe">Inscreva-se</span>
+    </span>
+  </a>
+
+  <!-- Switcher das Aplicações -->
+  <div class="app-switcher">
+    <button class="app-tab active" onclick="switchApp('srt')" id="tabAppSrt">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      Criar Legendas (SRT)
+    </button>
+    <button class="app-tab" onclick="switchApp('prompts')" id="tabAppPrompts">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="14.31" y1="8" x2="20.05" y2="17.94"></line><line x1="9.69" y1="8" x2="21.17" y2="8"></line><line x1="7.38" y1="12" x2="13.12" y2="2.06"></line><line x1="9.69" y1="16" x2="3.95" y2="6.06"></line><line x1="14.31" y1="16" x2="2.83" y2="16"></line><line x1="16.62" y1="12" x2="10.88" y2="21.94"></line></svg>
+      Gerar Prompts Visuais
+    </button>
+  </div>
+
+  <header id="mainHeader">
+    <div class="saas-badge"><span></span> IA Generativa Visual</div>
+    <h1 id="appTitle">Gerador de Legendas</h1>
+    <p class="subtitle" id="appDesc">Converta roteiros longos num ficheiro .SRT sincronizado perfeitamente para retenção. Ajuste o ritmo e tamanho dos blocos de texto.</p>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- APP 1: GERADOR DE SRT                      -->
+  <!-- ========================================== -->
+  <div id="viewSrt" class="view-section active">
+    <div class="grid">
+      <!-- Lado Esquerdo -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Texto do Roteiro / Guião</div>
+        </div>
+        <textarea id="inputRoteiroSrt" placeholder="Cole aqui o guião do seu vídeo. O sistema irá calcular os tempos com base na velocidade de leitura escolhida e irá gerar um ficheiro .SRT perfeitamente cortado..."></textarea>
+      </div>
+
+      <!-- Lado Direito -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">Configurações de Tempo</div></div>
+        
+        <div class="field">
+          <label>Ritmo de Leitura (Locução)</label>
+          <select id="selRitmoSrt" onchange="toggleCustomInput('selRitmoSrt', 'divCustomRitmo')">
+            <option value="custom">✍️ Digitar valor personalizado...</option>
+            <option value="1.8">1.8 p/s - Lento (Filosofia / Estoicismo)</option>
+            <option value="2.0">2.0 p/s - Narrativo (História / Fantasia / Velho Oeste)</option>
+            <option value="2.2" selected>2.2 p/s - Padrão (Geral / Sci-Fi)</option>
+            <option value="2.4">2.4 p/s - Suspense (True Crime / Mistérios)</option>
+            <option value="2.8">2.8 p/s - Dinâmico (Finanças / Riqueza)</option>
+            <option value="3.5">3.5 p/s - Acelerado (Shorts / Reels - Todos)</option>
+          </select>
+          <div id="divCustomRitmo" class="custom-input-box" style="display: none;">
+            <input type="number" step="0.1" id="inputCustomRitmo" placeholder="Digite o ritmo em p/s (ex: 2.5)">
+          </div>
+        </div>
+
+        <div class="field" style="margin-top: 32px;">
+          <label>Tamanho Alvo do Bloco/Cena (Palavras)</label>
+          <div class="slider-wrap">
+            <input type="range" id="maxWordsSrt" min="10" max="60" value="25" oninput="document.getElementById('maxWordsSrtVal').textContent = this.value">
+            <span class="slider-val" id="maxWordsSrtVal">25</span>
+          </div>
+          <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">O sistema vai procurar o ponto final mais próximo deste valor para não cortar o assunto a meio.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-actions">
+      <button class="btn-generate btn-generate-wrapper" onclick="gerarSrt()">Gerar Ficheiro .SRT</button>
+      <button class="btn-clear" onclick="limparSrt()">Limpar</button>
+    </div>
+
+    <!-- Resultados SRT -->
+    <div id="resultsSrt">
+      <div class="results-header" style="margin-bottom: 16px;">
+        <div class="card-title" style="margin: 0;">Legendas Geradas (Pré-visualização)</div>
+        <div class="actions-group">
+          <button class="btn-action btn-save-txt" onclick="copiarSrt()">📋 Copiar</button>
+          <button class="btn-action btn-copy-all" onclick="baixarSrt()">💾 Guardar .SRT</button>
+          <button class="btn-magic" onclick="enviarParaPrompts()">
+              🎨 Enviar SRT para Gerador de Prompts
+          </button>
+        </div>
+      </div>
+      <textarea id="outputSrtText" class="srt-output" readonly></textarea>
+    </div>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- APP 2: GERADOR DE PROMPTS                  -->
+  <!-- ========================================== -->
+  <div id="viewPrompts" class="view-section">
+    <div class="grid">
+      <!-- Lado Esquerdo -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Origem do Texto</div>
+          <div class="tabs">
+            <button class="tab active" onclick="setModePrompts('text')">Texto Livre</button>
+            <button class="tab" onclick="setModePrompts('srt')">Ficheiro .SRT</button>
+          </div>
+        </div>
+
+        <div id="modeTextPrompts">
+          <textarea id="inputRoteiroPrompts" placeholder="Cole o seu texto ou cole diretamente as legendas aqui... A IA extrai apenas a ação visual."></textarea>
+        </div>
+
+        <div id="modeSrtPrompts" class="upload-zone" onclick="document.getElementById('fileSrtPrompts').click()">
+          <div class="upload-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          </div>
+          <div class="upload-label">Clique ou arraste um <strong>ficheiro .srt</strong></div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:8px; font-family: var(--font-mono);" id="srtFileNamePrompts">Nenhum ficheiro selecionado</div>
+          <input type="file" id="fileSrtPrompts" accept=".srt" style="display:none;" onchange="handleSrtUploadPrompts(event)">
+        </div>
+      </div>
+
+      <!-- Lado Direito -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">Configurações Estéticas</div></div>
+        
+        <div class="field">
+          <label>Nicho de Conteúdo</label>
+          <select id="selNicho" onchange="atualizarEstilos()">
+            <option value="custom">✍️ Digitar Nicho personalizado...</option>
+            <option value="geral" selected>Geral / Universal</option>
+            <option value="true_crime">True Crime / Mistérios</option>
+            <option value="estoicismo">Filosofia / Estoicismo</option>
+            <option value="financas">Finanças / Riqueza</option>
+            <option value="sci_fi">Espaço / Ficção Científica</option>
+            <option value="historia">História / Civilizações Antigas</option>
+            <option value="velho_oeste">Velho Oeste / Faroeste</option>
+            <option value="fantasia">Ficção Fantástica / Fantasia</option>
+          </select>
+          <div id="divCustomNicho" class="custom-input-box" style="display: none;">
+            <input type="text" id="inputCustomNicho" placeholder="Qual é o tema/nicho? (ex: Cyberpunk)">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Estilo Visual / Render</label>
+          <select id="selEstilo" onchange="toggleCustomInput('selEstilo', 'divCustomEstilo')"></select>
+          <div id="divCustomEstilo" class="custom-input-box" style="display: none;">
+            <input type="text" id="inputCustomEstilo" placeholder="Tags em inglês (ex: 8k, unreal engine)">
+          </div>
+        </div>
+
+        <div class="field" id="fieldMaxWordsPrompts" style="margin-top: 32px; margin-bottom: 0;">
+          <label>Densidade Máxima (Se usar Texto Livre)</label>
+          <div class="slider-wrap">
+            <input type="range" id="maxWordsPrompts" min="5" max="60" value="15" oninput="document.getElementById('maxWordsPromptsVal').textContent = this.value">
+            <span class="slider-val" id="maxWordsPromptsVal">15</span>
+          </div>
+          <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">Controla o limite de palavras por cena gerada. Valores maiores = maior contexto na mesma imagem.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-alert">
+      <div>⚡</div>
+      <div><strong>Processamento IA:</strong> O motor ignora diálogos. Identifica a ação visual da cena e efetua a tradução descritiva direta para Midjourney/Nano Banana 2.</div>
+    </div>
+
+    <div id="errorBoxPrompts" class="error-box" style="display:none;"></div>
+
+    <div class="main-actions">
+      <button class="btn-generate btn-generate-wrapper" id="btnGerarPrompts" onclick="gerarPrompts()">Gerar Prompts Visuais</button>
+      <button class="btn-clear" onclick="limparPrompts()">Reset</button>
+    </div>
+
+    <!-- Resultados Prompts -->
+    <div id="resultsPrompts" class="results-section">
+      <div class="results-header">
+        <div class="stats" id="statsBarPrompts"></div>
+        <div class="actions-group">
+          <button class="btn-action btn-copy-all" onclick="copiarTodosPrompts()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            Copiar Tudo
+          </button>
+          <button class="btn-action btn-save-txt" onclick="guardarTXTPrompts()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+            Exportar Guia+Prompts
+          </button>
+          <button class="btn-action btn-save-txt" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.4); color: #A7F3D0;" onclick="guardarTXTSomentePrompts()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            Exportar Só Prompts (Automação)
+          </button>
+        </div>
+      </div>
+      <div class="prompt-list" id="promptList"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Elemento oculto para garantir a cópia -->
+<textarea id="clipboard-helper"></textarea>
+
+<!-- Container para Notificações Customizadas -->
+<div id="toast-container"></div>
+
+<script>
+  // ==========================================
+  // CONFIG GERAIS E NAVEGAÇÃO
+  // ==========================================
+  const apiKey = ""; 
+
+  // Função helper para Notificações visuais elegantes
+  function showToast(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    let icon = 'ℹ️';
+    if(type === 'error') icon = '❌';
+    if(type === 'success') icon = '✅';
+    toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => { toast.remove(); }, 3000);
+  }
+
+  function toggleCustomInput(selectId, divId) {
+    const select = document.getElementById(selectId);
+    const div = document.getElementById(divId);
+    if (select && div) {
+      div.style.display = select.value === 'custom' ? 'block' : 'none';
+    }
+  }
+
+  function switchApp(appName) {
+    document.getElementById('tabAppSrt').classList.remove('active');
+    document.getElementById('tabAppPrompts').classList.remove('active');
+    document.getElementById('viewSrt').classList.remove('active');
+    document.getElementById('viewPrompts').classList.remove('active');
+    
+    const title = document.getElementById('appTitle');
+    const desc = document.getElementById('appDesc');
+
+    if (appName === 'srt') {
+      document.getElementById('tabAppSrt').classList.add('active');
+      document.getElementById('viewSrt').classList.add('active');
+      title.innerText = "Gerador de Legendas";
+      desc.innerHTML = "Converta roteiros longos num ficheiro .SRT sincronizado perfeitamente para retenção. Ajuste o ritmo e tamanho dos blocos de texto.";
+    } else {
+      document.getElementById('tabAppPrompts').classList.add('active');
+      document.getElementById('viewPrompts').classList.add('active');
+      title.innerText = "Gerador de Prompts";
+      desc.innerHTML = "Transforme textos em prompts visuais de alta precisão, otimizados especificamente para <strong>Midjourney</strong> e <strong>Nano Banana 2</strong>.";
+    }
+  }
+
+  // ==========================================
+  // APP 1: LÓGICA DO GERADOR DE SRT
+  // ==========================================
+  
+  function formatSrtTime(totalSeconds) {
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = Math.floor(totalSeconds % 60);
+    const ms = Math.floor((totalSeconds % 1) * 1000);
+    
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')},${String(ms).padStart(3, '0')}`;
+  }
+
+  function gerarSrt() {
+    const rawText = document.getElementById('inputRoteiroSrt').value.trim();
+    if (!rawText) { showToast("Por favor, cole um roteiro primeiro.", "error"); return; }
+
+    let wps = document.getElementById('selRitmoSrt').value;
+    if (wps === 'custom') {
+        wps = parseFloat(document.getElementById('inputCustomRitmo').value);
+        if (isNaN(wps) || wps <= 0) { 
+            showToast("Por favor, introduza um ritmo válido (ex: 2.5).", "error"); 
+            return; 
+        }
+    } else {
+        wps = parseFloat(wps);
+    }
+
+    const maxWords = parseInt(document.getElementById('maxWordsSrt').value);
+    
+    // Divisão inteligente para leitura natural
+    const words = rawText.split(/\s+/).filter(Boolean);
+    let srtContent = "";
+    let currentTime = 0;
+    let counter = 1;
+    let currentChunk = [];
+
+    for(let i=0; i<words.length; i++) {
+        currentChunk.push(words[i]);
+        
+        let isPunctuation = /[.!?]$/.test(words[i]);
+        let isComma = /[,;:]$/.test(words[i]);
+        
+        let forceBreak = currentChunk.length >= (maxWords * 1.5);
+        let naturalBreak = isPunctuation && currentChunk.length >= Math.max(3, Math.floor(maxWords * 0.4));
+        let softBreak = isComma && currentChunk.length >= maxWords;
+        let isLastWord = i === words.length - 1;
+
+        if (forceBreak || naturalBreak || softBreak || isLastWord) {
+            const chunkText = currentChunk.join(" ");
+            const duration = currentChunk.length / wps;
+            
+            const startTime = formatSrtTime(currentTime);
+            const endTime = formatSrtTime(currentTime + duration);
+            
+            srtContent += `${counter}\n${startTime} --> ${endTime}\n${chunkText}\n\n`;
+            
+            currentTime += duration;
+            counter++;
+            currentChunk = [];
+        }
+    }
+
+    document.getElementById('outputSrtText').value = srtContent;
+    document.getElementById('resultsSrt').style.display = 'block';
+    document.getElementById('resultsSrt').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    showToast("Legendas geradas com sucesso!", "success");
+  }
+
+  function copiarSrt() {
+    const ta = document.getElementById('outputSrtText');
+    ta.select();
+    try { 
+      document.execCommand('copy'); 
+      showToast('SRT Copiado para a área de transferência!', 'success'); 
+    } 
+    catch(err) { showToast('Erro ao copiar.', 'error'); }
+    window.getSelection().removeAllRanges();
+  }
+
+  function baixarSrt() {
+    const content = document.getElementById('outputSrtText').value;
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'legendas_geradas.srt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  function limparSrt() {
+    document.getElementById('inputRoteiroSrt').value = '';
+    document.getElementById('outputSrtText').value = '';
+    document.getElementById('resultsSrt').style.display = 'none';
+  }
+
+  // Ponte mágica SRT -> Prompts
+  function enviarParaPrompts() {
+    const srtData = document.getElementById('outputSrtText').value;
+    if(!srtData) return;
+    
+    switchApp('prompts');
+    setModePrompts('text');
+    document.getElementById('inputRoteiroPrompts').value = srtData;
+    
+    const btn = document.querySelector('.btn-magic');
+    const oldHtml = btn.innerHTML;
+    btn.innerHTML = '✅ Transferido com sucesso!';
+    setTimeout(() => { btn.innerHTML = oldHtml; }, 2000);
+  }
+
+
+  // ==========================================
+  // APP 2: LÓGICA DO GERADOR DE PROMPTS
+  // ==========================================
+  
+  let currentModePrompts = 'text'; 
+  let srtSegmentsGlobal = []; 
+
+  const DATABASE = {
+    geral: [
+      { nome: 'Cinemático Épico (Ultra Realismo 8K)', sufixo: 'Ultra-realistic cinematic photography, 8k resolution, masterpiece, photorealistic, extremely detailed, dramatic cinematic lighting, hyper-realistic, high-end production' },
+      { nome: 'Animação 3D Viral (Estilo Pixar)', sufixo: '3D animation style, Pixar style, Disney style, Octane Render, unreal engine 5, volumetric lighting, vibrant colors, highly detailed 3D character design, cute, cinematic lighting' },
+      { nome: 'Anime Aesthetic (Studio Ghibli)', sufixo: 'Studio Ghibli animation style, Makoto Shinkai style, anime art, vibrant beautiful scenery, hand-drawn 2D animation aesthetic, highly detailed, beautiful lighting, magical atmosphere' },
+      { nome: 'Dark Fantasy Retrô (Anos 80)', sufixo: '1980s dark fantasy movie still, vintage cinematic, atmospheric, mystical, highly detailed, grainy film, dramatic lighting, masterpiece' }
+    ],
+    true_crime: [
+      { nome: 'Documentário Policial Fotorrealista', sufixo: 'True crime documentary photography, hyper-realistic, gritty texture, dramatic lighting, high contrast, 8k resolution, photorealistic, cinematic' },
+      { nome: 'Cinemático Noir (Sombrio e Investigativo)', sufixo: 'Dark cinematic photography, David Fincher style, gloomy atmosphere, cold color grading, deep shadows, high contrast, thriller movie still' },
+      { nome: 'Found Footage / Arquivo Secreto', sufixo: 'Found footage aesthetic, 1990s VHS camcorder effect, glitch art, low fidelity, grainy tape texture, creepy atmosphere, amateur footage, highly realistic' },
+      { nome: 'Polaroid de Arquivo (Vibe Anos 80)', sufixo: 'Vintage polaroid flash photography, 1980s crime scene aesthetic, harsh direct flash lighting, vignette, realistic skin textures, true crime feel' }
+    ],
+    estoicismo: [
+      { nome: 'Mármore Épico (Estátuas Iluminadas)', sufixo: 'Ancient Greek marble statue, museum studio lighting, dark background, dramatic rim light, hyper-detailed marble texture, stoic philosophy aesthetic, photorealistic, 8k' },
+      { nome: 'Pintura Clássica (Obra-Prima Renascentista)', sufixo: 'Renaissance oil painting style, chiaroscuro lighting, visible brushstrokes, cracked canvas texture, muted rich colors, museum masterpiece, epic composition' },
+      { nome: 'Cinemático Sombrio (Dark Academia)', sufixo: 'Dark academia aesthetic, moody cinematic lighting, shadowy library, vintage philosophical atmosphere, highly detailed, photorealistic' },
+      { nome: 'Dupla Exposição (Conceitual Profundo)', sufixo: 'Cinematic double exposure photography, silhouette combined with nature landscapes, deep meaning, philosophical visual, highly detailed, artistic masterpiece' }
+    ],
+    financas: [
+      { nome: 'Luxo Editorial (Estilo Capa Forbes)', sufixo: 'High-end editorial photography, luxury lifestyle, crisp focus, wealthy aesthetic, golden hour lighting, photorealistic, 8k, depth of field, Forbes magazine cover style' },
+      { nome: 'Cyberpunk Corporate (Neon & Tech)', sufixo: 'Cyberpunk neon lighting, high-tech financial district, holograms, glowing data streams, futuristic stock market, unreal engine 5 render, cinematic lighting' },
+      { nome: 'Macro Realismo Premium (Ouro/Moedas)', sufixo: 'Extreme macro photography, gold coins and glowing details, sharp focus, bokeh background, luxurious lighting, hyper-realistic, 8k resolution, highly detailed texture' },
+      { nome: 'Minimalismo Elegante (Preto e Ouro)', sufixo: 'Elegant minimalist photography, black and gold color palette, corporate luxury, clean lines, high contrast, sophisticated lighting, 8k' }
+    ],
+    sci_fi: [
+      { nome: 'Épico Futurista (Unreal Engine 5)', sufixo: 'Epic Sci-Fi environment, Unreal Engine 5 render, ray tracing, volumetric fog, futuristic technology, highly detailed, cinematic lighting, masterpiece, 8k resolution' },
+      { nome: 'Realismo Cósmico (Telescópio Webb)', sufixo: 'Deep space photography, James Webb Space Telescope style, glowing nebulae, cosmic dust, highly detailed stars, hyper-realistic universe, NASA aesthetic' },
+      { nome: 'Retrowave Neon (Vibe Anos 80)', sufixo: '1980s synthwave aesthetic, retrowave, neon grid, glowing pink and cyan lights, retrofuturism, outrun style, VHS glitch effects, vibrant colors' },
+      { nome: 'Pintura Sci-Fi Clássica (Vintage)', sufixo: 'Vintage science fiction book cover illustration, 1970s sci-fi art style, retro space opera, vivid colors, classic painted aesthetic, nostalgic retro-futurism' }
+    ],
+    historia: [
+      { nome: 'Documentário Cinematográfico (NatGeo 8K)', sufixo: 'Historical documentary photography, National Geographic style, photorealistic, ancient civilization, dramatic lighting, epic monumental scale, 8k, hyper-detailed' },
+      { nome: 'Épico Hollywoodiano (Blockbuster)', sufixo: 'Epic cinematic movie still, Ridley Scott style, ancient history, massive crowds, towering ancient architecture, golden hour, dust and fog, hyper-realistic' },
+      { nome: 'Dark Fantasy Histórico (Viral Sombrio)', sufixo: 'Dark historical fantasy aesthetic, grimdark ancient world, eerie shadows, mystical atmosphere, cinematic lighting, hyper-detailed, masterpiece' },
+      { nome: 'Pintura a Óleo Épica (Obra-Prima)', sufixo: 'Classical epic historical oil painting, dramatic action, museum masterpiece, intricate details, rich colors, chiaroscuro lighting' }
+    ],
+    velho_oeste: [
+      { nome: 'Faroeste Cinematográfico (Sérgio Leone)', sufixo: 'Classic western movie still, Sergio Leone style, rugged cowboys, dusty frontier town, harsh sunlight, dramatic shadows, 35mm film grain, highly detailed' },
+      { nome: 'Red Dead Aesthetic (Unreal Engine 8K)', sufixo: 'Wild west video game aesthetic, Red Dead Redemption 2 style, Unreal Engine 5 render, cinematic lighting, ultra-detailed textures, volumetric dust and fog, 8k' },
+      { nome: 'Retrato de Época (Sépia Autêntico)', sufixo: 'Authentic 1800s tin-type photography, sepia tone, wild west pioneers, dusty environment, historical archive aesthetic, scratched film, highly realistic' },
+      { nome: 'Pintura Clássica da Fronteira', sufixo: 'Epic frontier oil painting, wild west landscape, dramatic sunset, Frederic Remington style, dynamic action, rich warm colors, museum masterpiece' }
+    ],
+    fantasia: [
+      { nome: 'Alta Fantasia Cinematográfica (Estilo LotR)', sufixo: 'Epic high fantasy environment, Lord of the Rings aesthetic, cinematic lighting, towering castles, mythical creatures, breathtaking landscape, highly detailed, 8k resolution' },
+      { nome: 'Dark Fantasy / Grimdark Brutal', sufixo: 'Dark fantasy art, grimdark aesthetic, gloomy atmosphere, gothic architecture, eerie fog, intricate details, moody lighting, highly realistic' },
+      { nome: 'Ilustração Épica (Trending ArtStation)', sufixo: 'Digital acrylic painting, fantasy concept art, vibrant magical colors, glowing elements, ArtStation trending, masterful brushstrokes, enchanting atmosphere' },
+      { nome: 'Magia Realista 3D (Octane Render)', sufixo: 'Magical fantasy 3D render, Octane render, glowing particles, bioluminescent plants, cinematic depth of field, hyper-realistic fantasy world, 8k' }
+    ]
+  };
+
+  function atualizarEstilos() {
+    const nicho = document.getElementById('selNicho').value;
+    const select = document.getElementById('selEstilo');
+    select.innerHTML = '';
+    
+    // Adiciona sempre a opção custom no topo do estilo
+    const optCustom = document.createElement('option');
+    optCustom.value = 'custom';
+    optCustom.textContent = '✍️ Digitar Estilo personalizado...';
+    select.appendChild(optCustom);
+
+    if (nicho === 'custom') {
+      // Se escolheu Nicho Personalizado, o Estilo também tem de ser personalizado
+      select.value = 'custom';
+    } else {
+      const estilos = DATABASE[nicho];
+      if (estilos) {
+        estilos.forEach(est => {
+          const opt = document.createElement('option');
+          opt.value = est.sufixo;
+          opt.textContent = `${est.nome}`;
+          select.appendChild(opt);
+        });
+        // Por padrão, seleciona a primeira opção da categoria após o custom
+        if (estilos.length > 0) {
+          select.value = estilos[0].sufixo;
+        }
+      }
+    }
+    
+    // Atualiza a visibilidade das caixas
+    toggleCustomInput('selNicho', 'divCustomNicho');
+    toggleCustomInput('selEstilo', 'divCustomEstilo');
+  }
+  
+  window.addEventListener('DOMContentLoaded', atualizarEstilos);
+
+  function setModePrompts(mode) {
+    currentModePrompts = mode;
+    const tabs = document.querySelectorAll('#viewPrompts .tab');
+    tabs[0].classList.toggle('active', mode === 'text');
+    tabs[1].classList.toggle('active', mode === 'srt');
+    
+    document.getElementById('modeTextPrompts').style.display = mode === 'text' ? 'block' : 'none';
+    document.getElementById('modeSrtPrompts').classList.toggle('active', mode === 'srt');
+    
+    const maxWordsField = document.getElementById('fieldMaxWordsPrompts');
+    if (mode === 'srt') {
+      maxWordsField.style.opacity = '0.3'; maxWordsField.style.pointerEvents = 'none';
+    } else {
+      maxWordsField.style.opacity = '1'; maxWordsField.style.pointerEvents = 'auto';
+    }
+  }
+
+  function handleSrtUploadPrompts(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    document.getElementById('srtFileNamePrompts').textContent = file.name;
+    
+    const reader = new FileReader();
+    reader.onload = ev => {
+      srtSegmentsGlobal = parseSrtFile(ev.target.result);
+      if(srtSegmentsGlobal.length > 0){
+        document.getElementById('srtFileNamePrompts').innerHTML = `<span style="color:var(--success)">✅ Sucesso: ${srtSegmentsGlobal.length} blocos lidos</span>`;
+      } else {
+        document.getElementById('srtFileNamePrompts').innerHTML = `<span style="color:var(--error)">❌ Falha na leitura do ficheiro.</span>`;
+      }
+    };
+    reader.readAsText(file, 'UTF-8');
+  }
+
+  function parseSrtFile(content) {
+    const segments = [];
+    const blocks = content.trim().replace(/\r\n/g, '\n').split('\n\n');
+    for (const block of blocks) {
+      const lines = block.split('\n').map(l => l.trim()).filter(Boolean);
+      if (lines.length === 0) continue;
+      
+      let textStart = 0;
+      if (/^\d+$/.test(lines[0])) textStart = 1;
+      
+      if (lines[textStart] && lines[textStart].includes('-->')) textStart++;
+      
+      if (lines.length > textStart) {
+        const text = lines.slice(textStart).join(' ').trim();
+        const cleanText = text.replace(/<[^>]+>/g, '');
+        if (cleanText) segments.push(cleanText);
+      }
+    }
+    return segments;
+  }
+
+  function aplicarDensidadeTexto(texto, limiteMaximo) {
+    const palavras = texto.trim().split(/\s+/).filter(Boolean);
+    if (palavras.length === 0) return [];
+    if (palavras.length <= limiteMaximo) return [palavras.join(' ')];
+
+    const blocos = [];
+    let blocoAtual = [];
+
+    for (let i = 0; i < palavras.length; i++) {
+      blocoAtual.push(palavras[i]);
+      
+      const temPontoFinal = /[.!?]+$/.test(palavras[i]);
+      const atingiuLimite = blocoAtual.length >= limiteMaximo;
+      
+      if (atingiuLimite || (temPontoFinal && blocoAtual.length >= limiteMaximo * 0.6)) {
+        blocos.push(blocoAtual.join(" "));
+        blocoAtual = [];
+      }
+    }
+    if (blocoAtual.length > 0) blocos.push(blocoAtual.join(" "));
+    return blocos;
+  }
+
+  async function fetchWithRetry(url, options) {
+    const delays = [1000, 2000, 4000, 8000, 16000];
+    for (let i = 0; i < delays.length; i++) {
+      try {
+        const res = await fetch(url, options);
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return await res.json();
+      } catch (e) {
+        if (i === delays.length - 1) throw e;
+        await new Promise(r => setTimeout(r, delays[i]));
+      }
+    }
+  }
+
+  async function interpretarComIA(segmentos, customTheme) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+    
+    let themeOverride = "";
+    if (customTheme) {
+        themeOverride = `\n9. OVERRIDING THEME: The user specified a custom theme/niche: "${customTheme}". You MUST heavily adapt the visual interpretation of ALL scenes to fit this specific theme beautifully.`;
+    }
+
+    const systemPrompt = `You are a Master Prompt Engineer for Midjourney and Nano Banana 2, strictly following the Ultimate Prompting Guide.
+You will receive a JSON array of script segments in Portuguese (they may contain SRT time stamps).
+
+For each segment, craft an optimal, highly descriptive image generation prompt in English using this exact formula:
+[Main Subject & Action] + [Specific Details: clothing, textures, expressions] + [Environment/Background] + [Lighting & Atmosphere] + [Camera/Lens Details]
+
+CRITICAL RULES:
+1. Ignore dialogue, voiceovers, text overlays, and timestamps. Focus strictly on VISUAL elements.
+2. MAXIMIZE REALISM: All prompts must aim for hyper-realism, photorealism, and extreme cinematic detail (e.g., "visible skin pores", "intricate micro-details").
+3. ANCIENT/MYSTIC THEMES RULE: If the text involves Ancient Civilizations, Sumerians, Anunnaki, or Biblical themes, you MUST heavily emphasize: "mysterious atmospheric lighting", "divine light rays", "eerie shadows", "chiaroscuro", "hyper-realistic ancient textures", "weathered gold and stone", and "epic monumental scale".
+4. Be highly descriptive. Instead of "a man", use "a rugged 40-year-old man wearing a worn leather jacket, intense expression".
+5. Add specific lighting keywords (e.g., "cinematic lighting", "volumetric fog", "rim light", "golden hour").
+6. Add camera framing (e.g., "extreme close-up", "wide establishing shot", "low angle", "bokeh").
+7. If the scene is pure dialogue without visual cues, invent a compelling cinematic context that fits the mood.
+8. Return ONLY a valid JSON array of English strings, matching the exact order and length of the input.${themeOverride}`;
+
+    const payload = {
+      contents: [{ parts: [{ text: JSON.stringify(segmentos) }] }],
+      systemInstruction: { parts: [{ text: systemPrompt }] },
+      generationConfig: { responseMimeType: "application/json", responseSchema: { type: "ARRAY", items: { type: "STRING" } } }
+    };
+
+    const result = await fetchWithRetry(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const textResult = result.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!textResult) throw new Error("Resposta vazia da API");
+    
+    let cleanText = textResult.trim();
+    if (cleanText.startsWith('```')) {
+        cleanText = cleanText.replace(/^```(json)?/, '').replace(/```$/, '').trim();
+    }
+    return JSON.parse(cleanText);
+  }
+
+  async function gerarPrompts() {
+    const btn = document.getElementById('btnGerarPrompts');
+    const errorBox = document.getElementById('errorBoxPrompts');
+    errorBox.style.display = 'none';
+    let segmentos = [];
+
+    if (currentModePrompts === 'text') {
+      const raw = document.getElementById('inputRoteiroPrompts').value;
+      if (!raw.trim()) { showToast("Por favor, introduza o texto primeiro.", "error"); return; }
+      
+      if(raw.includes("-->")) {
+         segmentos = parseSrtFile(raw);
+      } else {
+         const maxWords = parseInt(document.getElementById('maxWordsPrompts').value);
+         const paragrafos = raw.split(/\n+/).map(p => p.trim()).filter(Boolean);
+         for (const p of paragrafos) { segmentos.push(...aplicarDensidadeTexto(p, maxWords)); }
+      }
+    } else {
+      if (srtSegmentsGlobal.length === 0) { showToast("Por favor, faça o upload de um ficheiro .srt primeiro.", "error"); return; }
+      segmentos = [...srtSegmentsGlobal];
+    }
+
+    if(segmentos.length === 0) { showToast("Nenhum texto válido processado.", "error"); return; }
+
+    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 2s linear infinite;"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg> A Processar Cenas...';
+    btn.disabled = true;
+
+    if(!document.getElementById('spinStyle')) {
+      const styleSheet = document.createElement("style");
+      styleSheet.id = "spinStyle"; styleSheet.innerText = "@keyframes spin { 100% { transform: rotate(360deg); } }";
+      document.head.appendChild(styleSheet);
+    }
+
+    let nichoPersonalizado = "";
+    if (document.getElementById('selNicho').value === 'custom') {
+        nichoPersonalizado = document.getElementById('inputCustomNicho').value.trim();
+    }
+
+    let interpretacoes = [];
+    try {
+      interpretacoes = await interpretarComIA(segmentos, nichoPersonalizado);
+      if(!Array.isArray(interpretacoes)) throw new Error("A IA devolveu um formato inválido.");
+      
+      if (interpretacoes.length !== segmentos.length) {
+          console.warn(`A IA devolveu ${interpretacoes.length} prompts para ${segmentos.length} segmentos.`);
+          if (interpretacoes.length < segmentos.length) {
+              const diff = segmentos.length - interpretacoes.length;
+              for(let i=0; i<diff; i++) interpretacoes.push("Highly detailed cinematic scene, 8k resolution, masterpiece");
+          } else {
+              interpretacoes = interpretacoes.slice(0, segmentos.length);
+          }
+      }
+    } catch(err) {
+      errorBox.textContent = `Erro do Servidor/IA: ${err.message}`;
+      errorBox.style.display = 'block';
+      btn.innerHTML = 'Gerar Prompts Visuais'; btn.disabled = false;
+      return;
+    }
+
+    let styleSuffix = document.getElementById('selEstilo').value;
+    if (styleSuffix === 'custom') {
+        styleSuffix = document.getElementById('inputCustomEstilo').value.trim();
+    }
+
+    renderizarResultadosPrompts(segmentos, interpretacoes, styleSuffix);
+
+    btn.innerHTML = 'Gerar Prompts Visuais'; btn.disabled = false;
+    showToast("Prompts gerados com sucesso!", "success");
+  }
+
+  function renderizarResultadosPrompts(originais, interpretacoes, suffix) {
+    const list = document.getElementById('promptList');
+    list.innerHTML = '';
+    
+    originais.forEach((seg, index) => {
+      let wordCount = seg.trim().split(/\s+/).length;
+      let visualText = interpretacoes[index].replace(/[,;:\-]+$/, '').trim();
+      let promptText = suffix ? `${visualText}, ${suffix}` : visualText;
+
+      const card = document.createElement('div'); card.className = 'prompt-card';
+      card.innerHTML = `
+        <div class="pc-header">
+          <span class="pc-id">ASSET #${String(index + 1).padStart(2, '0')}</span>
+          <span class="pc-badge">${wordCount} palavras</span>
+        </div>
+        <div class="pc-original">"${seg.trim()}"</div>
+        <textarea class="pc-textarea" id="prompt_${index}">${promptText}</textarea>
+        <div class="pc-footer"><button class="btn-copy-single" onclick="execCopyText('prompt_${index}', this)">Copiar Prompt</button></div>
+      `;
+      list.appendChild(card);
+    });
+
+    const isSrtMode = currentModePrompts === 'srt' || document.getElementById('inputRoteiroPrompts').value.includes('-->');
+    const valMode = isSrtMode ? 'Auto (Sinc. SRT)' : document.getElementById('maxWordsPrompts').value;
+    
+    document.getElementById('statsBarPrompts').innerHTML = `
+      <div class="stat"><span>Ativos Gerados</span><strong>${originais.length}</strong></div>
+      <div class="stat"><span>Limite Palavras</span><strong>${valMode}</strong></div>
+    `;
+    document.getElementById('resultsPrompts').style.display = 'block';
+    setTimeout(() => { document.getElementById('resultsPrompts').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+  }
+
+  function execCopyText(elementId, btn) {
+    const texto = document.getElementById(elementId).value;
+    const helper = document.getElementById('clipboard-helper');
+    helper.value = texto; helper.select(); helper.setSelectionRange(0, 99999);
+    try {
+      document.execCommand('copy');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = 'Copiado!'; btn.style.color = 'var(--success)'; btn.style.borderColor = 'var(--success)';
+      setTimeout(() => { btn.innerHTML = originalText; btn.style.color = ''; btn.style.borderColor = ''; }, 2000);
+    } catch(err) { btn.innerHTML = 'Erro'; }
+    window.getSelection().removeAllRanges();
+  }
+
+  function copiarTodosPrompts() {
+    const cards = document.querySelectorAll('.prompt-card');
+    if (cards.length === 0) return;
+    let allText = '';
+    cards.forEach((card, i) => { 
+      const original = card.querySelector('.pc-original').innerText;
+      const prompt = card.querySelector('.pc-textarea').value;
+      allText += `--- ASSET ${String(i + 1).padStart(2, '0')} ---\n`;
+      allText += `📜 REF: ${original}\n`;
+      allText += `🎨 PROMPT:\n${prompt}\n\n`;
+    });
+    const helper = document.getElementById('clipboard-helper');
+    helper.value = allText; helper.select();
+    const btn = document.querySelector('.btn-copy-all'); const originalContent = btn.innerHTML;
+    try {
+      document.execCommand('copy');
+      btn.innerHTML = 'Copiado com sucesso!'; btn.style.background = 'var(--success)'; btn.style.color = '#fff';
+    } catch(err) { btn.innerHTML = 'Erro ao copiar'; }
+    setTimeout(() => { btn.innerHTML = originalContent; btn.style.background = ''; btn.style.color = ''; }, 2500);
+    window.getSelection().removeAllRanges();
+  }
+
+  function guardarTXTPrompts() {
+    const cards = document.querySelectorAll('.prompt-card');
+    if (cards.length === 0) { showToast("Não há prompts gerados para exportar.", "error"); return; }
+    let allText = "=== PROMPTS VISUAIS (EXPORTAÇÃO LOTE) ===\n\n";
+    cards.forEach((card, i) => { 
+      const original = card.querySelector('.pc-original').innerText;
+      const prompt = card.querySelector('.pc-textarea').value;
+      allText += `[ ASSET ${String(i + 1).padStart(2, '0')} ]\n`;
+      allText += `📜 REF: ${original}\n`;
+      allText += `🎨 PROMPT:\n${prompt}\n\n`;
+    });
+    const blob = new Blob([allText], { type: 'text/plain;charset=utf-8' });
+    const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'prompts_visuais_export.txt';
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+  }
+
+  function guardarTXTSomentePrompts() {
+    const cards = document.querySelectorAll('.prompt-card');
+    if (cards.length === 0) { showToast("Não há prompts gerados para exportar.", "error"); return; }
+    
+    let allText = ""; 
+    
+    cards.forEach((card, i) => { 
+      const prompt = card.querySelector('.pc-textarea').value;
+      
+      // Substituída a tag [IMAGEM 01] por uma numeração universal e limpa "01 - "
+      // Isto evita que a extensão apague caracteres especiais e ajuda a forçar a ordem numérica no nome.
+      allText += `${String(i + 1).padStart(2, '0')} - ${prompt}\n\n`;
+    });
+    
+    const blob = new Blob([allText], { type: 'text/plain;charset=utf-8' });
+    const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'somente_prompts_automacao.txt';
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+  }
+
+  function limparPrompts() {
+    document.getElementById('inputRoteiroPrompts').value = '';
+    document.getElementById('fileSrtPrompts').value = '';
+    document.getElementById('srtFileNamePrompts').textContent = 'Nenhum ficheiro selecionado';
+    srtSegmentsGlobal = [];
+    document.getElementById('resultsPrompts').style.display = 'none';
+    document.getElementById('promptList').innerHTML = '';
+    document.getElementById('errorBoxPrompts').style.display = 'none';
+    document.getElementById('btnGerarPrompts').innerHTML = 'Gerar Prompts Visuais';
+    document.getElementById('btnGerarPrompts').disabled = false;
+  }
+
+  // Registo do Service Worker para permitir instalação do PWA
+  if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.protocol === 'http:')) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('Service Worker registado com sucesso.', reg.scope))
+        .catch(err => console.error('Erro ao registar o Service Worker:', err));
+    });
+  } else {
+    console.log('Service Worker não registado: O ambiente atual não suporta PWA (protocolo ' + window.location.protocol + '). Funcionará perfeitamente quando alojado no GitHub Pages.');
+  }
+</script>
+
+</body>
+</html>
